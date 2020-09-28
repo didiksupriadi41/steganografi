@@ -18,6 +18,21 @@ def messageToBinary(message):
 
 class ImageSteganography:
     @staticmethod
+    def bit_depth(image_type):
+        if image_type == 'L' or image_type == 'P':
+            print("L")
+            bit_pixel = 8
+        elif image_type == 'RGB':
+            print("RGB")
+            bit_pixel = 24
+        elif image_type == 'RGBA':
+            print("RGBA")
+            bit_pixel = 32
+        else:
+            raise TypeError("Input type not supported")
+        return bit_pixel
+
+    @staticmethod
     def hide_message(input_image, input_message, input_key=''):
         if input_image is None:
             raise ValueError("requires an input image")
@@ -25,8 +40,10 @@ class ImageSteganography:
             raise ValueError("requires an input message")
 
         image = Image.open(input_image)
+        bit_pixel = ImageSteganography.bit_depth(image.mode)
         data = open(input_message, "rb")
         message = data.read()
+        print(message)
         print(messageToBinary(message))
         ImageSteganography.lsb_method(image, message, input_key)
         image.save("generated.png", "PNG")
@@ -50,5 +67,5 @@ class ImageSteganography:
 
 
 if __name__ == "__main__":
-    ImageSteganography.hide_message("bank.png", "a.txt", "didik")
+    ImageSteganography.hide_message("a.png", "a.txt", "didik")
     pass
