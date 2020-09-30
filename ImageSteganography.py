@@ -49,7 +49,7 @@ class ImageSteganography:
 
     @staticmethod
     def payload(input_message, input_bit, input_width, input_height):
-        if len(input_message) * 8 > input_bit * input_width * input_height:
+        if len(input_message) > input_bit * input_width * input_height:
             return False
         return True
 
