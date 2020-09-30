@@ -97,5 +97,5 @@ if __name__ == "__main__":
     input_choice = input()
     if input_choice[0] == "1":
         if input_choice[1] == "1":
-            ImageSteganography.hide_message(input_choice, "save.png", "a.txt", "didik")
+            ImageSteganography.hide_message(input_choice, "a.png", "a.txt", "didik")
     pass
