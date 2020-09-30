@@ -64,15 +64,27 @@ class ImageSteganography:
         i = 0
         for x in range(0, width):
             for y in range(0, height):
-                pixel = list(input_image.getpixel((x, y)))
+                if bit_pixel == 1:
+                    pixel = input_image.getpixel((x, y))
+                else:
+                    pixel = list(input_image.getpixel((x, y)))
+
                 for n in range(0, bit_pixel):
                     if i < len(input_message):
-                        pixel[n] = pixel[n] & ~1 | int(input_message[i])
+                        if bit_pixel == 1:
+                            pixel = pixel & ~1 | int(input_message[i])
+                        else:
+                            pixel[n] = pixel[n] & ~1 | int(input_message[i])
                         i += 1
-                input_image.putpixel((x, y), tuple(pixel))
+
+                if bit_pixel == 1:
+                    input_image.putpixel((x, y), pixel)
+                else:
+                    input_image.putpixel((x, y), tuple(pixel))
+
 
     @staticmethod
-    def bpcs_method(image, message, key=""):
+    def bpcs_method(input_image, input_message, input_key):
         pass
 
 
@@ -97,5 +109,5 @@ if __name__ == "__main__":
     input_choice = input()
     if input_choice[0] == "1":
         if input_choice[1] == "1":
-            ImageSteganography.hide_message(input_choice, "a.png", "a.txt", "didik")
+            ImageSteganography.hide_message(input_choice, "save.png", "a.txt", "didik")
     pass
