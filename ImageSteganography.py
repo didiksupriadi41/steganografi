@@ -7,16 +7,16 @@ from PIL import Image
 
 def messageToBinary(message):
     if type(message) == bytes or type(message) == np.ndarray:
-        return ''.join([format(i, "08b") for i in message])
+        return "".join([format(i, "08b") for i in message])
     elif type(message) == str:
-        return ''.join([format(ord(i), "08b") for i in message])
+        return "".join([format(ord(i), "08b") for i in message])
     else:
         raise TypeError("Input type not supported")
 
 
 class ImageSteganography:
     @staticmethod
-    def hide_message(input_choice, input_image, input_message, input_key=''):
+    def hide_message(input_choice, input_image, input_message, input_key=""):
         if input_image is None:
             raise ValueError("requires an input image")
         if input_message is None:
@@ -38,11 +38,11 @@ class ImageSteganography:
 
     @staticmethod
     def bit_depth(image_type):
-        if image_type == 'L' or image_type == 'P':
+        if image_type == "L" or image_type == "P":
             return 1
-        elif image_type == 'RGB':
+        elif image_type == "RGB":
             return 3
-        elif image_type == 'RGBA':
+        elif image_type == "RGBA":
             return 4
         else:
             raise TypeError("Input type not supported")
@@ -59,7 +59,7 @@ class ImageSteganography:
         bit_pixel = ImageSteganography.bit_depth(input_image.mode)
 
         if not ImageSteganography.payload(input_message, bit_pixel, width, height):
-            raise TypeError('too many message')
+            raise TypeError("too many message")
 
         i = 0
         for x in range(0, width):
@@ -72,7 +72,7 @@ class ImageSteganography:
                 input_image.putpixel((x, y), tuple(pixel))
 
     @staticmethod
-    def bpcs_method(image, message, key=''):
+    def bpcs_method(image, message, key=""):
         pass
 
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     # print("  metode bpcs")
 
     input_choice = input()
-    if input_choice[0] == '1':
-        if input_choice[1] == '1':
+    if input_choice[0] == "1":
+        if input_choice[1] == "1":
             ImageSteganography.hide_message(input_choice, "save.png", "a.txt", "didik")
     pass
