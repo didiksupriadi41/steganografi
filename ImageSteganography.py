@@ -58,7 +58,7 @@ class ImageSteganography:
         width, height = input_image.size
         bit_pixel = ImageSteganography.bit_depth(input_image.mode)
 
-        if ImageSteganography.payload(input_message, bit_pixel, width, height):
+        if not ImageSteganography.payload(input_message, bit_pixel, width, height):
             raise TypeError('too many message')
 
         i = 0
