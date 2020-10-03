@@ -4,6 +4,7 @@ import numpy as np
 import sys
 
 from PIL import Image
+from bpcs.bpcs_steg_encode import encode
 
 
 def messageToBinary(message):
@@ -17,22 +18,28 @@ def messageToBinary(message):
 
 class ImageSteganography:
     @staticmethod
-    def hide_message(input_choice, input_image, input_message, input_key=""):
+    def hide_message(input_choice, input_image, input_message, input_key=''):
         if input_image is None:
             raise ValueError("requires an input image")
         if input_message is None:
             raise ValueError("requires an input message")
 
-        with open(input_message, "rb") as f:
+        with open(input_message, "r") as f:
             data = f.read()
+
         image = Image.open(input_image)
 
+        if input_key != '':
+            data = classic.ExtendedVigenere.encrypt(data, input_key)
+
         bin_choice = messageToBinary(input_choice)
+        bin_data_len = messageToBinary(str(len(data)))
         bin_data = messageToBinary(data)
         message = bin_choice + bin_data
         print(message)
 
         ImageSteganography.lsb_method(image, message, input_key)
+
         print(image.format)
         if image.format == 'BMP':
             image.save('generated.bmp', 'BMP')
@@ -49,7 +56,6 @@ class ImageSteganography:
     @staticmethod
     def show_message(input_image):
         image = Image.open(input_image)
-        # bit_depth = ImageSteganography.bit_depth(image.mode)
         width, height = image.size
 
     @staticmethod
@@ -73,7 +79,7 @@ class ImageSteganography:
         bit_depth = ImageSteganography.bit_depth(input_image.mode)
 
         if not ImageSteganography.payload(input_message, bit_depth, width, height):
-            raise TypeError("too many message")
+            raise ValueError("too many message")
 
         i = 0
         for x in range(0, width):
@@ -137,14 +143,14 @@ class ImageSteganography:
 
     @staticmethod
     def bpcs_method(input_image, input_message, input_key):
-        pass
+        encode(input_image, input_message, 'generated.png', 0.3)
 
 
 if __name__ == "__main__":
 
     print("Penyisipan pesan")
     print("  tanpa enkripsi")
-    # print("  dengan enkripsi")
+    print("  dengan enkripsi")
     # enc = input()
 
     print("  metode lsb")
@@ -161,5 +167,8 @@ if __name__ == "__main__":
     input_choice = input()
     if input_choice[0] == "1":
         if input_choice[1] == "1":
-            ImageSteganography.hide_message(input_choice, "save.png", "a.txt", "didik")
+            ImageSteganography.hide_message(input_choice, 'bank.png', 'a.txt', 'didik')
+    elif input_choice[0] == '2':
+        if input_choice[1] == '1':
+            ImageSteganography.bpcs_method('bank.png', 'a.txt', 'didik')
     pass
