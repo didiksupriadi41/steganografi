@@ -3,21 +3,6 @@ from functools import reduce
 from .logger import log
 
 def get_next_grid_dims(arr, dims):
-    """
-    arr is a numpy array of shape [x0, x1, ..., xN]
-    dims is a 2d array, the shape of the grid
-        where each 'grid' is arr[dims[0], dims[1], i2, i3, ..., iN]
-        for some i2, i3, ..., iN
-    iterates through the grids of arr
-        starting by iterating from 0..xN, then 0..xN-1, ..., 0..x2
-        and in the first two dimensions, from left-to-right and then top-to-bottom
-    e.g. if arr.shape == [4,4,2,2] and dims == [4,4]
-        returns:
-            arr[:,:,0,0]
-            arr[:,:,0,1]
-            arr[:,:,1,0]
-            arr[:,:,1,1]
-    """
     nrows, ncols = arr.shape[0], arr.shape[1]
     rows_per_grid, cols_per_grid = dims[0], dims[1]
 
