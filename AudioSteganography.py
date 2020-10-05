@@ -91,7 +91,7 @@ def main():
                 AudioSteganography.encode(command[1], command[2], command[3], command[3])
             print()
         elif(command[0] == "decode" and (len(command) == 5 or len(command) == 4 or len(command) == 3)):
-            if(len(command) == 5):
+            if(len(command) ==5):
                 AudioSteganography.decode(command[1], command[2], command[3])
             elif(len(command) == 4):
                 AudioSteganography.decode(command[1], command[2], command[3])
