@@ -110,17 +110,17 @@ class FullVigenere:
         return plaintext
 
 class ExtendedVigenere:
-    @staticmethod
+    '''@staticmethod
     def generateKey(message, key):
         keyM = ''
         for i in range(len(message)):
             keyM = keyM + key[i % len(key)]
-        return keyM
+        return keyM'''
 
     @staticmethod
     def encrypt(message, key):
         ciphertext = ''
-        key = ExtendedVigenere.generateKey(message, key)
+        #key = ExtendedVigenere.generateKey(message, key)
         for i in range(len(message)):
             ciphertext = ciphertext + chr((ord(message[i]) + ord(key[i % len(key)])) % 256)
         return ciphertext
