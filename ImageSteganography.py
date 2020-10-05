@@ -15,7 +15,6 @@ def messageToBinary(message):
     else:
         raise TypeError("Input type not supported")
 
-
 class ImageSteganography:
     @staticmethod
     def hide_message(input_choice, input_image, input_message, input_key=''):
@@ -32,25 +31,13 @@ class ImageSteganography:
         if input_key != '':
             data = classic.ExtendedVigenere.encrypt(data, input_key)
 
-        if input_choice[0] == '1':
-            print(1)
-            if input_choice[1] == '1':
-                print(1)
-            elif input_choice[1] == '2':
-                print(2)
-        elif input_choice[0] == '2':
-            print(2)
-            if input_choice[1] == '1':
-                print(1)
-            elif input_choice[1] == '2':
-                print(2)
-
         bin_choice = messageToBinary(input_choice)
         bin_data_len = messageToBinary(str(len(data)))
         print(bin_data_len)
 
         bin_data = messageToBinary(data)
-        message = bin_choice + bin_data
+        # message = bin_choice + bin_data
+        message = bin_data
         print(message)
 
         if input_choice[0] == '1':
@@ -60,9 +47,9 @@ class ImageSteganography:
 
         print(image.format)
         if image.format == 'BMP':
-            image.save('generated.bmp', 'BMP')
+            image.save('test/generated.bmp', 'BMP')
         elif image.format == 'PNG':
-            image.save('generated.png', 'PNG')
+            image.save('test/generated.png', 'PNG')
 
         original_image = Image.open(input_image)
         stego_image = image
@@ -73,9 +60,27 @@ class ImageSteganography:
         image.close()
 
     @staticmethod
-    def show_message(input_image):
-        image = Image.open(input_image)
-        width, height = image.size
+    def show_message(output_image):
+        extracted_bin = []
+        with Image.open(output_image) as image:
+            width, height = image.size
+            byte = []
+            bit_depth = ImageSteganography.bit_depth(image.mode)
+
+            for x in range(0, width):
+                for y in range(0, height):
+                    if bit_depth == 1:
+                        pixel = image.getpixel((x, y))
+                    else:
+                        pixel = list(image.getpixel((x, y)))
+                    for n in range(0, bit_depth):
+                        if bit_depth == 1:
+                            extracted_bin.append(pixel & 1)
+                        else:
+                            extracted_bin.append(pixel[n] & 1)
+
+        bin_data = "".join([str(x) for x in extracted_bin])
+        classic.writeFileBinary('generated.txt', bin_data)
 
     @staticmethod
     def bit_depth(image_type):
@@ -123,7 +128,23 @@ class ImageSteganography:
 
     @staticmethod
     def bpcs_encode(input_image, input_message, input_key):
-        encode(input_image, input_message, 'generated.png', 0.3)
+        image = Image.open(input_image)
+        if image.format == 'BMP':
+            encode(input_image, input_message, 'test/generated.bmp', alpha=0.3)
+            stego_image = Image.open('test/generated.bmp')
+            ImageSteganography.psnr(image, stego_image)
+        elif image.format == 'PNG':
+            encode(input_image, input_message, 'test/generated.png', alpha=0.3)
+            stego_image = Image.open('test/generated.png')
+            ImageSteganography.psnr(image, stego_image)
+
+        # if image.format == 'BMP':
+        # elif image.format == 'PNG':
+    
+    @staticmethod
+    def bpcs_decode(input_image):
+        image = Image.open(input_image)
+        decode(input_image, 'test/generated.txt', alpha=0.3)
 
     @staticmethod
     def psnr(input_image, output_image):
@@ -158,11 +179,11 @@ class ImageSteganography:
         result = math.sqrt(result / (width * height))
         psnr_value = 20 * math.log10(255 / result)
 
-        print(psnr_value)
+        print('PSNR:', psnr_value)
         if psnr_value >= 30:
-            print('good image quality')
+            print('PSNR: good image quality')
         elif psnr_value < 30:
-            print('significant degraded image quality')
+            print('PSNR: significant degraded image quality')
 
 if __name__ == "__main__":
 
@@ -175,16 +196,19 @@ if __name__ == "__main__":
     print("    pixel-pixel sekuensial")
     # print("    pixel-pixel acak")
     print("  metode bpcs")
-    # print("    blok-blok sekuensial")
+    print("    blok-blok sekuensial")
     # print("    blok-blok acak")
 
     print("ekstraksi pesan")
     # print("  metode lsb")
-    # print("  metode bpcs")
+    print("  metode bpcs")
 
     input_choice = input()
     if input_choice[0] == '1':
-        ImageSteganography.hide_message(input_choice, 'bank.png', 'a.txt', 'didik')
+        ImageSteganography.hide_message(input_choice, 'test/banana.png', 'test/a.txt', '')
     elif input_choice[0] == '2':
-        ImageSteganography.bpcs_encode('bank.png', 'a.txt', 'didik')
+        ImageSteganography.bpcs_encode('test/banana.png', 'test/a.txt', '')
+    elif input_choice[0] == '3':
+        ImageSteganography.bpcs_decode('test/generated.png')
     pass
+    # ImageSteganography.show_message('generated.png')

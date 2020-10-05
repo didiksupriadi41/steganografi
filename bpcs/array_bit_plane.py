@@ -13,7 +13,6 @@ def arr_map(arr, fcn):
     return arr
 
 def pbc_to_cgc(arr):
-    log.critical('Graying...')
     def pbc_to_cgc_mapper(planes):
         new_planes = []
         for i in range(planes.shape[1]):
@@ -25,7 +24,6 @@ def pbc_to_cgc(arr):
     return arr_map(arr, pbc_to_cgc_mapper)
 
 def cgc_to_pbc(arr):
-    log.critical('Ungraying...')
     def cgc_to_pbc_mapper(planes):
         new_planes = []
         for i in range(planes.shape[1]):
@@ -48,7 +46,6 @@ class BitPlane:
         return [int(x) for x in bin(val)[2:].zfill(nbits)[:nbits]]
 
     def slice(self, nbits):
-        log.critical('Slicing...')
         basearr = [self.decimal_to_bin_strs(i, nbits) for i in self.arr.reshape(-1)]
         tmparr = np.reshape(basearr, self.arr.shape + (nbits,))
         if self.gray:
@@ -64,7 +61,6 @@ class BitPlane:
             all_inds = [range(dim_size) for dim_size in arr.shape]
             for ind in itertools.product(*all_inds[:-1]):
                 yield ind
-        log.critical('Stacking...')
         tmparr = np.reshape([self.bin_strs_to_decimal(tmparr[ind]) for ind in iterate_all_but_last_dim(tmparr)], tmparr.shape[:-1])
         assert tmparr.shape == self.arr.shape[:-1]
         return tmparr

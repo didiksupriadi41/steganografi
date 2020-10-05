@@ -25,7 +25,6 @@ class ActOnImage(object):
         self.gray = gray
         self.nbits_per_layer = nbits_per_layer
         self.arr = self.read(infile)
-        log.critical('Loaded image as array with shape {0}'.format(self.arr.shape))
 
     def read(self, infile):
         im = load_image(infile, self.as_rgb)
@@ -41,5 +40,4 @@ class ActOnImage(object):
         if self.bitplane:
             arr = BitPlane(arr, self.gray).stack()
         im = array_to_image(arr)
-        log.critical('Loaded new array as image')
         write_image(outfile, im)

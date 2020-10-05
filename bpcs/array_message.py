@@ -96,7 +96,6 @@ def get_n_message_grids(nbits_per_map, ngrids):
 
 def separate_conj_map_from_message(grids, alpha):
     if not grids:
-        log.critical('No message grids found')
         return [], [], []
 
     get_nignored = lambda grid: len(get_conj_grid_prefix((grid.shape[0], grid.shape[1]), alpha))
@@ -105,7 +104,6 @@ def separate_conj_map_from_message(grids, alpha):
 
     ngrids = len(grids)
     x = get_n_message_grids(nbits_per_map, ngrids)
-    log.critical('Found {0} message grids and {1} conjugation maps'.format(x, ngrids-x))
     return grids[:x], grids[x:], nbits_per_map[x:]
 
 def get_conj_map(cgrids, nbits_per_map):

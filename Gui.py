@@ -32,10 +32,14 @@ def insertion():
 
         if event == 'Cancel':
             break
+
         elif event == 'Submit':
             if values[1] == 'LSB':
                 if values[2] == 'Sequential':
                     ImageSteganography.hide_message('11', values[3], values[4], values[5])
+            if values[1] == 'BPCS':
+                if values[2] == 'Sequential':
+                    ImageSteganography.bpcs_encode(values[3], values[4], values[5])
 
     window.close()
 
@@ -57,11 +61,12 @@ layout = [
 
 window = sg.Window('Steganography', layout, default_element_size=(40, 1), grab_anywhere=False)
 
+event, values = window.read()
+
 if event == 'Submit':
     if values[0] == 'Penyisipan Pesan':
         insertion()
     elif values[0] == 'Ekstraksi Pesan':
         extraction()
 
-event, values = window.read()
 window.close()
