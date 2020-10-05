@@ -8,15 +8,6 @@ from .bpcs_steg import arr_bpcs_complexity, conjugate
 
 ALIVE, CONJUGATING, DEAD = 0,1,2
 def get_message_and_status(message, dims, conjugated, status, alpha):
-    """
-    message is remaining message to be embedded
-    dims is shape of next desired grid
-    conjugated is list of bool, specifying whether each past message grid was conjugated or not
-    status is int
-        DEAD means we shouldn't be embedding any more messages
-        ALIVE means we need the next grid from message
-        CONJUGATING means we need the next grid from conjugated
-    """
     if status == DEAD:
         return None, None, None, DEAD
     elif status == CONJUGATING and len(conjugated) == 0:
@@ -30,12 +21,6 @@ def get_message_and_status(message, dims, conjugated, status, alpha):
         return cur, message, conjugated, ALIVE
 
 def embed_message_in_vessel(arr, alpha, message, grid_size):
-    """
-    want all o.g. grids to have complexity < alpha
-    if you find one greater than alpha
-    replace it with message
-    if message complexity < alpha, conjugate message
-    """
     conjugated = []
     status = ALIVE
     nmessgs, nmaps, nleft, ngrids = 0, 0, 0, 0

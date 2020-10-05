@@ -5,7 +5,7 @@ import sys
 
 from PIL import Image
 from bpcs.bpcs_steg_encode import encode
-
+from bpcs.bpcs_steg_decode import decode
 
 def messageToBinary(message):
     if type(message) == bytes or type(message) == np.ndarray:
@@ -32,13 +32,31 @@ class ImageSteganography:
         if input_key != '':
             data = classic.ExtendedVigenere.encrypt(data, input_key)
 
+        if input_choice[0] == '1':
+            print(1)
+            if input_choice[1] == '1':
+                print(1)
+            elif input_choice[1] == '2':
+                print(2)
+        elif input_choice[0] == '2':
+            print(2)
+            if input_choice[1] == '1':
+                print(1)
+            elif input_choice[1] == '2':
+                print(2)
+
         bin_choice = messageToBinary(input_choice)
         bin_data_len = messageToBinary(str(len(data)))
+        print(bin_data_len)
+
         bin_data = messageToBinary(data)
         message = bin_choice + bin_data
         print(message)
 
-        ImageSteganography.lsb_method(image, message, input_key)
+        if input_choice[0] == '1':
+            ImageSteganography.lsb_encode(image, message)
+        if input_choice[0] == '2':
+            ImageSteganography.bpcs_encode(input_image, input_message, '')
 
         print(image.format)
         if image.format == 'BMP':
@@ -48,6 +66,7 @@ class ImageSteganography:
 
         original_image = Image.open(input_image)
         stego_image = image
+
         ImageSteganography.psnr(original_image, stego_image)
 
         original_image.close()
@@ -74,7 +93,7 @@ class ImageSteganography:
         return True
 
     @staticmethod
-    def lsb_method(input_image, input_message, input_key):
+    def lsb_encode(input_image, input_message):
         width, height = input_image.size
         bit_depth = ImageSteganography.bit_depth(input_image.mode)
 
@@ -101,6 +120,10 @@ class ImageSteganography:
                     input_image.putpixel((x, y), pixel)
                 else:
                     input_image.putpixel((x, y), tuple(pixel))
+
+    @staticmethod
+    def bpcs_encode(input_image, input_message, input_key):
+        encode(input_image, input_message, 'generated.png', 0.3)
 
     @staticmethod
     def psnr(input_image, output_image):
@@ -141,11 +164,6 @@ class ImageSteganography:
         elif psnr_value < 30:
             print('significant degraded image quality')
 
-    @staticmethod
-    def bpcs_method(input_image, input_message, input_key):
-        encode(input_image, input_message, 'generated.png', 0.3)
-
-
 if __name__ == "__main__":
 
     print("Penyisipan pesan")
@@ -156,19 +174,17 @@ if __name__ == "__main__":
     print("  metode lsb")
     print("    pixel-pixel sekuensial")
     # print("    pixel-pixel acak")
-    # print("  metode bpcs")
+    print("  metode bpcs")
     # print("    blok-blok sekuensial")
     # print("    blok-blok acak")
 
     print("ekstraksi pesan")
-    print("  metode lsb")
+    # print("  metode lsb")
     # print("  metode bpcs")
 
     input_choice = input()
-    if input_choice[0] == "1":
-        if input_choice[1] == "1":
-            ImageSteganography.hide_message(input_choice, 'bank.png', 'a.txt', 'didik')
+    if input_choice[0] == '1':
+        ImageSteganography.hide_message(input_choice, 'bank.png', 'a.txt', 'didik')
     elif input_choice[0] == '2':
-        if input_choice[1] == '1':
-            ImageSteganography.bpcs_method('bank.png', 'a.txt', 'didik')
+        ImageSteganography.bpcs_encode('bank.png', 'a.txt', 'didik')
     pass
