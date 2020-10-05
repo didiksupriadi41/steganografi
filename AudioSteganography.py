@@ -5,7 +5,7 @@ from playsound import playsound
 
 class AudioSteganography:
     @staticmethod
-    def encode(filename_input, message, key, encrypt=False, filename_output="stegAudio.wav", method="sequential"):
+    def encode(filename_input, message, key, encrypt=False, filename_output="stegAudio.wav", method="random"):
         print("\nEncoding Starts..")
         audio = wave.open(filename_input, mode="rb")
         frame_bytes = bytearray(list(audio.readframes(audio.getnframes())))
@@ -17,9 +17,10 @@ class AudioSteganography:
             for i in range(len(message)):
                 msg = msg + chr(ord(message[i]))
             message = msg
+        bits_msg_init = int(len(message)*8*8/8)
         message = message + int((len(frame_bytes)-(len(message)*8*8))/8) *'#'
         bits = list(map(int, ''.join([bin(ord(i)).lstrip('0b').rjust(8,'0') for i in message])))
-        if(len(bits) > len(frame_bytes)-1):
+        if(bits_msg_init > len(frame_bytes)-1):
             print("Message is too large to be hidden in desired audio file")
             return
         if(method == "sequential"):
