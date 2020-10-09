@@ -41,6 +41,7 @@ def frame_extract(video, output_folder):
             break
         cv2.imwrite(os.path.join(output_folder, "{:d}.png".format(count)), image)
         count += 1
+    return fps
 
 def tryint(s):
     try:
@@ -51,7 +52,7 @@ def tryint(s):
 def alphanum_key(s):
     return [ tryint(c) for c in re.split('([0-9]+)', s) ]
 
-def write_video(output_video, output_folder):
+def write_video(output_video, output_folder, fps):
     img_array = []
     print("sorted glob = " ,sorted(glob.glob('./temp/*.png'),key=alphanum_key))
     for filename in sorted(glob.glob('./temp/*.png'),key=alphanum_key):
@@ -60,7 +61,7 @@ def write_video(output_video, output_folder):
         size = (width,height)
         img_array.append(img)
     
-    cv2.VideoWriter()
+    #cv2.VideoWriter()
     
     out = cv2.VideoWriter(output_folder + "/" + output_video ,cv2.VideoWriter_fourcc(*'DIVX'), 30, size)
     
@@ -102,14 +103,16 @@ def appendMethodCode(string_to_append, length, method_code, frameOrderList):
             appendedStringList[frameOrderListIndex] = splittedStringPart
         frameOrderListIndex += 1
     if not frameZeroPassed:
-        appendedStringList[frameOrderList.index(0)] = method_code + appendedStringList[frameOrderList.index(0)]
+        #appendedStringList[frameOrderList.index(0)] = method_code + appendedStringList[frameOrderList.index(0)]
+        appendedStringList[frameOrderList.index(1)] = method_code + appendedStringList[frameOrderList.index(1)]
     #print("appendedStringList ", appendedStringList)
     return appendedStringList, frameZeroPassed
 
 def toUpperCase(text):
     return "".join(filter(str.isupper, text.upper()))
 
-def decode(frame_dir, key):
+def decode(frame_dir, input_video, key="", output_message="decodedMessage.txt"):
+    call(["ffmpeg", "-i", input_video, frame_dir+"/%d.png", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
     seed = calculate_seed(key)
     frameCount = get_frameCount(frame_dir)
     frameOrderList = initialize_frameOrderList(frameCount)
@@ -138,7 +141,7 @@ def decode(frame_dir, key):
         print("frameOrderList = ", frameOrderList)
         for i in range(len(frameOrderList)):
             #print("int(frameOrderList[i]) = ", int(frameOrderList[i]), "message = ", messageList[int(frameOrderList[i])])
-            newMessageList[i] = decodedMessageList[int(frameOrderList[i])]
+            newMessageList[i] = decodedMessageList[int(frameOrderList[i])-1]
         print("newMessageList = ",newMessageList)
         decodedMessage = "".join(newMessageList)
         print("newMessage = ", decodedMessage)
@@ -148,6 +151,9 @@ def decode(frame_dir, key):
     if method_code[1] == "4":
         #encrypted
         decodedMessage = classic.ExtendedVigenere.decrypt(decodedMessage,key)
+    text_file = open(output_message, "w+")
+    text_file.write(decodedMessage)
+    text_file.close()
     return decodedMessage
 
 def calculate_seed(key):
@@ -158,7 +164,7 @@ def calculate_seed(key):
 
 def initialize_frameOrderList(frameCount):
     frameOrderList = []
-    for i in range(0, frameCount):
+    for i in range(1, frameCount+1):
         frameOrderList.append(i)
     return frameOrderList
 
@@ -189,7 +195,10 @@ def payload(input_message, input_bit, input_width, input_height):
             return False
         return True
 
-def encode(frame_dir, message, key, frameSequential=True, pixelSequential=True, encrypted=False, from_file=False):
+def encode(input_video, frame_dir, message, key, frameSequential=True, pixelSequential=True, encrypted=False, from_file=False, output_video="stego-generated.avi"):
+    call(["ffmpeg", "-i", input_video, "temp/%d.png", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
+    call(["ffmpeg", "-i", input_video, "-q:a", "0", "-map", "a", "tempaudio/audio.mp3", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
+    #fps = frame_extract(str(file_name), "temp")
     #change key to uppercase
     toUpperCase(key)
     if from_file:
@@ -198,7 +207,8 @@ def encode(frame_dir, message, key, frameSequential=True, pixelSequential=True, 
     if encrypted:
         message = classic.ExtendedVigenere.encrypt(message,key)
     #Initialize width and height for frame
-    frame = Image.open(str(frame_dir) + "/0.png")
+    # frame = Image.open(str(frame_dir) + "/0.png")
+    frame = Image.open(str(frame_dir) + "/1.png")
     width, height = frame.size
     print("width = ", width, " ,height = ", height)
     bit_depth = ImageSteganography.ImageSteganography.bit_depth(frame.mode)
@@ -266,6 +276,10 @@ def encode(frame_dir, message, key, frameSequential=True, pixelSequential=True, 
         ImageSteganography.ImageSteganography.hide_message(input_choice=method_code ,input_image=frameName, input_message=messagepart, input_key=key, output_image=frameName, pixelSequential=pixelSequential, from_file=False)
         #Save Image
         messagepart_index+=1
+    #print("fps = ", fps)
+    call(["ffmpeg", "-i", frame_dir+"/%d.png" , "-vcodec", "png", "tempmovie/video.mov", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
+    call(["ffmpeg", "-i", "tempmovie/video.mov", "-i", "tempaudio/audio.mp3", "-codec", "copy", output_video, "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
+    #write_video(output_video=output_video, output_folder='data', fps = fps)
 
 if __name__ == "__main__":
     file_name = "3sec.avi"
@@ -278,26 +292,30 @@ if __name__ == "__main__":
     #     exit()
     
     # extract frame
-    frame_extract(str(file_name), "temp")
+    #frame_extract(str(file_name), "temp")
+    #call(["ffmpeg", "-i", "data/" + str(file_name), "temp/%d.png", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
 
     # extract audio
     #call(["ffmpeg", "-i", "data/" + str(file_name), "-q:a", "0", "-map", "a", "tempaudio/audio.mp3", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
 
     ##encrypt and append string to frames
-    encode(frame_dir="temp", message=message, key="didik", frameSequential=False, pixelSequential=False, encrypted=True, from_file=True)
+    #encode(input_video=file_name, frame_dir="temp", message=message, key="didik", frameSequential=False, pixelSequential=False, encrypted=True, from_file=True, output_video="stegomovie-3sec.mov")
 
     #write_video(output_video='stegomovie-3sec.avi', output_folder='data')
 
     # # #merge audio
-    #call(["ffmpeg", "-i", "data/stegomovie-3sec.avi", "-i", "tempaudio/audio.mp3", "-codec", "copy", "data/stegomovie-"+str(file_name), "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
+    #call(["ffmpeg", "-i", "tempmovie/video.mov", "-i", "tempaudio/audio.mp3", "-codec", "copy", "data/stegomovie-3sec"+".mov", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
+
+    #call(["ffmpeg", "-i", "data/stegomovie-3sec"+".mov", "temp2/%d.png", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
 
     # # #DECRYPT
-    #file_name = "stegomovie-3sec.avi"
+    #file_name = "stegomovie-3sec.mov"
 
     # #extract frames
-    #frame_extract(str(file_name), "temp")
+    #frame_extract(str(file_name), "temp2")
 
     # #decrypt
-    decodedMessage = decode("temp",key="didik")
+    #decodedMessage = decode(frame_dir="temp2",key="didik", input_video="data/stegomovie-3sec"+".mov")
+    decodedMessage = decode(frame_dir="temp2", input_video="stegomovie.mov", key="didik", output_message="decodedMessage.txt")
     print("decodedMessageResult = ", decodedMessage)
     # print("end of message")

@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 from ImageSteganography import ImageSteganography
+import videoSteganography
 import sys
 
 sg.ChangeLookAndFeel('GreenTan')
@@ -8,50 +9,85 @@ def insertion():
     layout = [
         [sg.Text('Steganography', size=(30, 1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_RIDGE)],
         [sg.Frame(layout=[
-        [sg.Checkbox('Encrypt', default=True)]], title='Options',title_color='red', relief=sg.RELIEF_SUNKEN)],
-        [sg.InputOptionMenu(('LSB', 'BPCS'))],
-        [sg.InputOptionMenu(('Sequential', 'Random'))],
+        [sg.Checkbox('Encrypt', default=False)]], title='Options0',title_color='red', relief=sg.RELIEF_SUNKEN)],
+        [sg.InputOptionMenu(('LSB', 'BPCS'), key="SteganographyMethod")],
+        [sg.Frame(layout=[
+        [sg.Checkbox('PixelSequential', default=False, key="PixelSequential")]], title='Options1',title_color='red', relief=sg.RELIEF_SUNKEN)],
         [sg.Text('Your Image', size=(15, 1), auto_size_text=False, justification='right'),
-            sg.InputText(''), sg.FileBrowse()],
-        [sg.Text('Your File', size=(15, 1), auto_size_text=False, justification='right'),
-            sg.InputText(''), sg.FileBrowse()],
+            sg.InputText(key="image"), sg.FileBrowse()],
+        [sg.Text('Your Message File', size=(15, 1), auto_size_text=False, justification='right'),
+            sg.InputText(key="message"), sg.FileBrowse()],
         [sg.Text('Your Key', size=(15, 1), auto_size_text=False, justification='right'),
-            sg.InputText('')],
+            sg.InputText(key="key")],
+        [sg.Frame(layout=[
+        [sg.Checkbox('VideoSteganography', default=False, key="VideoSteganography")]], title='Options2',title_color='red', relief=sg.RELIEF_SUNKEN)],
+        [sg.Frame(layout=[
+        [sg.Checkbox('FrameSequential', default=False, key="FrameSequential")]], title='Options3',title_color='red', relief=sg.RELIEF_SUNKEN)],
+        [sg.Text('Your Video', size=(15, 1), auto_size_text=False, justification='right'),
+            sg.InputText(key="video"), sg.FileBrowse()],
+
         [sg.Submit(), sg.Cancel()]
     ]
-
 
     window = sg.Window('Steganography', layout, default_element_size=(40, 1), grab_anywhere=False)
 
     while True:
         event, values = window.read(0)
-        if values[0] == True:
-            window[5].update(disabled=False)
-        else:
-            window[5].update(disabled=True)
+        print(values)
+        # if values[0] == True:
+        #     window[4].update(disabled=False)
+        # else:
+        #     window[4].update(disabled=True)
 
         if event == 'Cancel':
             break
 
         elif event == 'Submit':
-            if values[1] == 'LSB':
-                if values[2] == 'Sequential':
-                    ImageSteganography.hide_message('11', values[3], values[4], values[5])
-            if values[1] == 'BPCS':
-                if values[2] == 'Sequential':
-                    ImageSteganography.bpcs_encode(values[3], values[4], values[5])
+            if values['VideoSteganography']:
+                videoSteganography.encode(input_video=values['video'], frame_dir="temp", message=values['message'], key="didik", frameSequential=values['FrameSequential'], pixelSequential=values['PixelSequential'], encrypted=True, from_file=True, output_video="stegomovie.mov")
+            else:
+                if values["SteganographyMethod"] == 'LSB':
+                    ImageSteganography.hide_message('11', values['image'], values['message'], values['key'], pixelSequential=values['PixelSequential'], from_file=True, encrypt=values[0])
+                    # if values[2] == 'Sequential':
+                    #     ImageSteganography.hide_message('11', values[3], values[4], values[5], pixelSequential=True, from_file=True, encrypt=values[0])
+                    # else:
+                    #     ImageSteganography.hide_message('11', values[3], values[4], values[5], pixelSequential=False, from_file=True, encrypt=values[0])
+                if values["SteganographyMethod"] == 'BPCS':
+                    if values['PixelSequential']:
+                        ImageSteganography.bpcs_encode(values['image'], values['message'], values['key'])
 
     window.close()
 
 def extraction():
     layout = [
             [sg.Text('Steganography', size=(30, 1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_RIDGE)],
-            [sg.InputOptionMenu('LSB', 'BPCS')],
+            #[sg.InputOptionMenu(('LSB', 'BPCS'))],
+            [sg.Frame(layout=[
+            [sg.Checkbox('VideoSteganography', default=False, key="VideoSteganography")]], title='Options2',title_color='red', relief=sg.RELIEF_SUNKEN)],
+            [sg.Text('Your Stego Video', size=(15, 1), auto_size_text=False, justification='right'),
+            sg.InputText(key="video"), sg.FileBrowse()],
+            [sg.Text('Your Key', size=(15, 1), auto_size_text=False, justification='right'),
+            sg.InputText(key="key")],
             [sg.Submit(), sg.Cancel()]
     ]
     window = sg.Window('Steganography', layout, default_element_size=(40, 1), grab_anywhere=False)
     event, values = window.read()
-    window.close()
+
+    while True:
+        event, values = window.read(0)
+        print(values)
+        # if values[0] == True:
+        #     window[4].update(disabled=False)
+        # else:
+        #     window[4].update(disabled=True)
+
+        if event == 'Cancel':
+            break
+
+        elif event == 'Submit':
+            if values['VideoSteganography']:
+                videoSteganography.decode(frame_dir="temp2", input_video=values['video'], key=values['key'],  output_message="decodedMessage.txt")
+    #window.close()
 
 layout = [
     [sg.Text('Steganography', size=(30, 1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_RIDGE)],

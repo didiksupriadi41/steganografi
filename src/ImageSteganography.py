@@ -411,7 +411,9 @@ if __name__ == "__main__":
     # print("  metode lsb")
     print("  metode bpcs")
 
-    input_choice = input()
+    print("message = ", ImageSteganography.decodeLSB("output.png", key="didik"))
+    input_choice = '0'
+    #input_choice = input()
     if input_choice[0] == '1':
         ImageSteganography.hide_message(input_choice, 'test/banana.png', 'test/a.txt', '')
     elif input_choice[0] == '2':
