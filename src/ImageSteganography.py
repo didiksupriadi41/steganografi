@@ -356,6 +356,7 @@ class ImageSteganography:
 
     @staticmethod
     def psnr(input_image, output_image):
+        print(input_image.size)
         width, height = input_image.size
         bit_depth = ImageSteganography.bit_depth(input_image.mode)
         
@@ -392,6 +393,7 @@ class ImageSteganography:
             print('PSNR: good image quality')
         elif psnr_value < 30:
             print('PSNR: significant degraded image quality')
+        return psnr_value
 
 if __name__ == "__main__":
 
