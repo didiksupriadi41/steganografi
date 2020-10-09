@@ -61,7 +61,7 @@ class ImageSteganography:
         original_image = Image.open(input_image)
         stego_image = image
 
-        #ImageSteganography.psnr(original_image, stego_image)
+        ImageSteganography.psnr(original_image, stego_image)
 
         original_image.close()
         image.close()
@@ -353,12 +353,12 @@ class ImageSteganography:
     def bpcs_decode(input_image):
         image = Image.open(input_image)
         decode(input_image, 'test/generated.txt', alpha=0.3)
-
+    
     @staticmethod
     def psnr(input_image, output_image):
         print(input_image.size)
         width, height = input_image.size
-        bit_depth = ImageSteganography.bit_depth(input_image.mode)
+        bit_depth = ImageSteganography.ImageSteganography.bit_depth(input_image.mode)
         
         if bit_depth == 1:
             result = 0
@@ -386,7 +386,10 @@ class ImageSteganography:
             result = (result_r + result_g + result_b) / 3
 
         result = math.sqrt(result / (width * height))
-        psnr_value = 20 * math.log10(255 / result)
+        if result == 0:
+            psnr_value = 100
+        else:
+            psnr_value = 20 * math.log10(255 / result)
 
         print('PSNR:', psnr_value)
         if psnr_value >= 30:
@@ -394,6 +397,48 @@ class ImageSteganography:
         elif psnr_value < 30:
             print('PSNR: significant degraded image quality')
         return psnr_value
+
+
+    # @staticmethod
+    # def psnr(input_image, output_image):
+    #     print(input_image.size)
+    #     width, height = input_image.size
+    #     bit_depth = ImageSteganography.bit_depth(input_image.mode)
+        
+    #     if bit_depth == 1:
+    #         result = 0
+    #     else:
+    #         result_r = 0
+    #         result_g = 0
+    #         result_b = 0
+
+    #     i = 0
+    #     j = 0
+    #     for i in range(0, width):
+    #         for j in range(0, height):
+    #             if bit_depth == 1:
+    #                 pixel_in = input_image.getpixel((i, j))
+    #                 pixel_out = output_image.getpixel((i, j))
+    #                 result = result + (float(pixel_in) - float(pixel_out)) ** 2
+    #             else:
+    #                 pixel_in = list(input_image.getpixel((i, j)))
+    #                 pixel_out = list(output_image.getpixel((i, j)))
+    #                 result_r = result_r + (float(pixel_in[0]) - float(pixel_out[0])) ** 2
+    #                 result_g = result_g + (float(pixel_in[1]) - float(pixel_out[1])) ** 2
+    #                 result_b = result_b + (float(pixel_in[2]) - float(pixel_out[2])) ** 2
+
+    #     if bit_depth == 3:
+    #         result = (result_r + result_g + result_b) / 3
+
+    #     result = math.sqrt(result / (width * height))
+    #     psnr_value = 20 * math.log10(255 / result)
+
+    #     print('PSNR:', psnr_value)
+    #     if psnr_value >= 30:
+    #         print('PSNR: good image quality')
+    #     elif psnr_value < 30:
+    #         print('PSNR: significant degraded image quality')
+    #     return psnr_value
 
 if __name__ == "__main__":
 
