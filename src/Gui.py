@@ -7,7 +7,7 @@ sg.ChangeLookAndFeel('GreenTan')
 
 def insertion():
     layout = [
-        [sg.Text('Steganography', size=(30, 1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_RIDGE)],
+        [sg.Text('Steganography Insertion', size=(30, 1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_RIDGE)],
         [sg.Frame(layout=[
         [sg.Checkbox('Encrypt', default=False)]], title='Options0',title_color='red', relief=sg.RELIEF_SUNKEN)],
         [sg.InputOptionMenu(('LSB', 'BPCS'), key="SteganographyMethod")],
@@ -60,10 +60,10 @@ def insertion():
 
 def extraction():
     layout = [
-            [sg.Text('Steganography', size=(30, 1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_RIDGE)],
+            [sg.Text('Steganography Extraction', size=(30, 1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_RIDGE)],
             #[sg.InputOptionMenu(('LSB', 'BPCS'))],
             [sg.Frame(layout=[
-            [sg.Checkbox('VideoSteganography', default=False, key="VideoSteganography")]], title='Options2',title_color='red', relief=sg.RELIEF_SUNKEN)],
+            [sg.Checkbox('VideoSteganography', default=False, key="VideoSteganography")]], title='Options',title_color='red', relief=sg.RELIEF_SUNKEN)],
             [sg.Text('Your Stego Video', size=(15, 1), auto_size_text=False, justification='right'),
             sg.InputText(key="video"), sg.FileBrowse()],
             [sg.Text('Your Key', size=(15, 1), auto_size_text=False, justification='right'),
@@ -87,11 +87,44 @@ def extraction():
         elif event == 'Submit':
             if values['VideoSteganography']:
                 videoSteganography.decode(frame_dir="temp2", input_video=values['video'], key=values['key'],  output_message="decodedMessage.txt")
-    #window.close()
+    window.close()
+
+def psnr():
+    layout = [
+            [sg.Text('Steganography PSNR', size=(30, 1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_RIDGE)],
+            #[sg.InputOptionMenu(('LSB', 'BPCS'))],
+            [sg.Frame(layout=[
+            [sg.Checkbox('VideoSteganography', default=False, key="VideoSteganography")]], title='Options',title_color='red', relief=sg.RELIEF_SUNKEN)],
+            [sg.Text('Your Original File', size=(15, 1), auto_size_text=False, justification='right'),
+            sg.InputText(key="input_file"), sg.FileBrowse()],
+            [sg.Text('Your Stego File', size=(15, 1), auto_size_text=False, justification='right'),
+            sg.InputText(key="output_file"), sg.FileBrowse()],
+            [sg.Text('PSNR:'), sg.Text(size=(30,1), key='PSNR')],
+            [sg.Submit(), sg.Cancel()]
+    ]
+    window = sg.Window('Steganography', layout, default_element_size=(40, 1), grab_anywhere=False)
+    event, values = window.read()
+
+    while True:
+        event, values = window.read(0)
+        print(values)
+        # if values[0] == True:
+        #     window[4].update(disabled=False)
+        # else:
+        #     window[4].update(disabled=True)
+
+        if event == 'Cancel':
+            break
+
+        elif event == 'Submit':
+            if values['VideoSteganography']:
+                psnr = videoSteganography.video_psnr(input_video=values['input_file'],input_dir="temp",output_video=values['output_file'],output_dir="temp2", output_psnr_txt="psnr.txt")
+                window['PSNR'].update(str(psnr))
+    window.close()
 
 layout = [
     [sg.Text('Steganography', size=(30, 1), justification='center', font=("Helvetica", 25), relief=sg.RELIEF_RIDGE)],
-    [sg.InputOptionMenu(('Penyisipan Pesan', 'Ekstraksi Pesan'))],
+    [sg.InputOptionMenu(('Penyisipan Pesan', 'Ekstraksi Pesan', 'PSNR'))],
     [sg.Submit(), sg.Cancel()]
 ]
 
@@ -104,5 +137,7 @@ if event == 'Submit':
         insertion()
     elif values[0] == 'Ekstraksi Pesan':
         extraction()
+    elif values[0] == 'PSNR':
+        psnr()
 
 window.close()

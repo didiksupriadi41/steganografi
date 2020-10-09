@@ -325,7 +325,7 @@ def image_psnr(input_image, output_image):
         print('PSNR: significant degraded image quality')
     return psnr_value
 
-def video_psnr(input_video, input_dir, output_video, output_dir):
+def video_psnr(input_video, input_dir, output_video, output_dir, output_psnr_txt):
     call(["ffmpeg", "-i", input_video, input_dir+"/%d.png", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
     call(["ffmpeg", "-i", output_video, output_dir+"/%d.png", "-y"],stdout=open(os.devnull, "w"), stderr=STDOUT)
 
@@ -357,6 +357,14 @@ def video_psnr(input_video, input_dir, output_video, output_dir):
         print('VIDEO PSNR: good image quality')
     elif psnr_value < 30:
         print('VIDEO PSNR: significant degraded image quality')
+
+    text_file = open(output_psnr_txt, "w+")
+    text_file.write(str(psnr_value))
+    if psnr_value >= 30:
+        text_file.write('VIDEO PSNR: good image quality')
+    elif psnr_value < 30:
+        text_file.write('VIDEO PSNR: significant degraded image quality')
+    text_file.close()
     return psnr_value
 
 if __name__ == "__main__":
